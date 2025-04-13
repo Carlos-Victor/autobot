@@ -23,22 +23,19 @@ async def on_voice_state_update(member, before, after):
     if member.bot:
         return
 
-    if all([bool(before.channel), bool(after.channel)]):
-        return
+    if before.channel is None and after.channel is not None:
+        guild = member.guild
+        members_channels = [
+            member for channel in guild.voice_channels for member in channel.members
+        ]
+        actual_members = [
+            member_channel for member_channel in members_channels if not member_channel.bot
+        ]
 
-    guild = member.guild
-    members_channels = [
-        member for channel in guild.voice_channels for member in channel.members
-    ]
-    actual_members = [
-        member_channel for member_channel in members_channels if not member_channel.bot
-    ]
+        if len(actual_members) != 1:
+            return
 
-    if len(actual_members) != 1:
-        return
-
-    general_channel = utils.get(guild.text_channels, name="geral")
-    if general_channel:
+        general_channel = utils.get(guild.text_channels, name="geral")
         await general_channel.send(
             f"{member.mention} Chegou e está Chamando Todos os Autobots\n@everyone",
             allowed_mentions=AllowedMentions(everyone=True),
