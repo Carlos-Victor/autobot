@@ -1,6 +1,7 @@
 from discord import Intents, utils, AllowedMentions
 from discord.ext import commands
 from decouple import config
+from webserver import server
 
 token = config("DISCORD_TOKEN", cast=str)
 
@@ -41,5 +42,7 @@ async def on_voice_state_update(member, before, after):
             allowed_mentions=AllowedMentions(everyone=True),
         )
 
+if __name__ == "__main__":
+    server()
+    bot.run(token)
 
-bot.run(token)
