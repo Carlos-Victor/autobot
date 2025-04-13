@@ -5,7 +5,7 @@ from threading import Thread
 
 app = FastAPI()
 
-@app.route("/")
+@app.get("/")
 def healthcheck():
     return {"status": True}
 
