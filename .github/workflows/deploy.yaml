@@ -7,8 +7,30 @@ env:
   APP_NAME: autobot
   ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
   ARGOCD_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+  IMAGE_NAME: registry.bodysoft.com.br/autobot/server
+  REGISTRY: registry.bodysoft.com.br
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+          docker push $IMAGE_NAME:$IMAGE_TAG
+
   deploy:
     runs-on: ubuntu-latest
     environment: production
