@@ -1,7 +1,8 @@
 name: Deploy via ArgoCD
 
 on:
-  workflow_dispatch:  # será chamado automaticamente pelo build.yaml
+  push:
+    branches: [ main ]
 
 env:
   APP_NAME: autobot
