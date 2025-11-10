@@ -37,6 +37,9 @@ jobs:
     environment: production
     needs: [build]
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
       - name: Install ArgoCD CLI
         run: |
           curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
@@ -47,20 +50,21 @@ jobs:
           argocd app create $APP_NAME \
             --dest-namespace $APP_NAME \
             --dest-server https://kubernetes.default.svc \
+            --repo ${{ github.server_url }}/${{ github.repository }} \
+            --path ./helm \
             --helm-set image.tag=${{ github.sha }} \
             --helm-set secret.DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
             --project default \
-            --revision 0.1.0 \
-            --server ${{ env.ARGOCD_SERVER }} \
+            --server ${{ vars.ARGOCD_SERVER }} \
             --upsert --grpc-web \
-            --auth-token ${{ env.ARGOCD_TOKEN }} \
+            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
             --sync-option CreateNamespace=true \
-            --values-literal-file helm/values.yaml
+            --values-literal-file ./helm/values.yaml
 
           argocd app sync $APP_NAME \
-            --server ${{ env.ARGOCD_SERVER }} \
+            --server ${{ vars.ARGOCD_SERVER }} \
             --force \
             --retry-limit 3 \
             --grpc-web \
-            --auth-token ${{ env.ARGOCD_TOKEN }} \
+            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
             --timeout 2100

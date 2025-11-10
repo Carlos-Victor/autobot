@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "autobot.fullname" . }}-configmap
+data:
+{{- range $envKey, $envVal := .Values.configmap }}
+  {{ $envKey }}: {{ $envVal | quote }}
+{{- end }}
